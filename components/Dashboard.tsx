@@ -23,56 +23,56 @@ const Dashboard = ({ activeView = 'overview' }: DashboardProps) => {
     {
       title: 'Orders',
       value: 'n/a',
-      trend: 'up',
+      trend: 'up' as const,
       insight: 'Business Insight',
       icon: 'List'
     },
     {
       title: 'Pending',
       value: 'n/a',
-      trend: 'down',
+      trend: 'down' as const,
       insight: 'Business Insight',
       icon: 'MoreHorizontal'
     },
     {
       title: 'Product Trend',
       value: '0% n/a',
-      trend: 'neutral',
+      trend: 'neutral' as const,
       insight: '0% n/a',
       icon: 'TrendingUp'
     },
     {
       title: 'Retention',
       value: '0% n/a',
-      trend: 'neutral',
+      trend: 'neutral' as const,
       insight: '0% n/a',
       icon: 'Smile'
     },
     {
       title: 'Month Total',
       value: 'n/a',
-      trend: 'up',
+      trend: 'up' as const,
       insight: 'Business Insight',
       icon: 'BarChart3'
     },
     {
       title: 'Revenue',
       value: 'n/a',
-      trend: 'up',
+      trend: 'up' as const,
       insight: 'Business Insight',
       icon: 'Camera'
     },
     {
       title: 'Paid Invoices',
       value: 'Rp. n/a',
-      trend: 'neutral',
+      trend: 'neutral' as const,
       insight: 'Business Insight',
       icon: 'Wallet'
     },
     {
       title: 'Upcoming Invoices',
       value: 'Rp. n/a',
-      trend: 'neutral',
+      trend: 'neutral' as const,
       insight: 'Business Insight',
       icon: 'Wallet'
     }
@@ -178,7 +178,7 @@ const Dashboard = ({ activeView = 'overview' }: DashboardProps) => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
       {renderContent()}
     </div>
   )

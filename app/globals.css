@@ -3,9 +3,6 @@
 @tailwind utilities;
 
 @layer base {
-  * {
-    @apply border-gray-200;
-  }
   body {
     @apply bg-gray-50 text-gray-900;
   }
@@ -13,7 +10,7 @@
 
 @layer components {
   .card {
-    @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
+    @apply bg-white rounded-lg shadow-sm p-6;
   }
   
   .btn-primary {
@@ -29,23 +26,25 @@
   }
   
   .sidebar-item {
-    @apply flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200;
-  }
-  
-  .sidebar-item-active {
-    @apply bg-primary-50 text-primary-700 border-r-2 border-primary-600;
+    @apply flex items-center px-4 py-2 text-sm font-medium rounded-full transition-all duration-200;
   }
   
   .sidebar-item-inactive {
-    @apply text-gray-600 hover:bg-gray-50 hover:text-gray-900;
+    @apply text-gray-600 hover:bg-gray-100 hover:text-gray-900;
   }
   
   .metric-card {
-    @apply bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200;
+    @apply bg-white rounded-xl p-6 hover:shadow transition-shadow duration-200;
   }
   
   .chart-container {
-    @apply bg-white rounded-xl shadow-sm border border-gray-100 p-6;
+    @apply bg-white rounded-xl p-6;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
   }
 }
 

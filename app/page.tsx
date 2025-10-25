@@ -1,3 +1,5 @@
+'use client'
+
 import Dashboard from '@/components/Dashboard'
 import Sidebar from '@/components/Sidebar'
 import Header from '@/components/Header'
@@ -10,10 +12,12 @@ export default function Home() {
     <div className="flex h-screen bg-gray-50">
       <Sidebar onNavigate={setActiveView} />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
-          <Dashboard activeView={activeView} />
-        </main>
+        <div className="flex-1 overflow-x-hidden overflow-y-auto">
+          <Header title={activeView.charAt(0).toUpperCase() + activeView.slice(1)} />
+          <main className="p-6">
+            <Dashboard activeView={activeView} />
+          </main>
+        </div>
       </div>
     </div>
   )
