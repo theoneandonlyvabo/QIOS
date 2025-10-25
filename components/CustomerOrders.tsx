@@ -1,0 +1,102 @@
+'use client'
+
+import { User, MapPin, Clock, CheckCircle, XCircle } from 'lucide-react'
+
+const CustomerOrders = () => {
+  const orders = [
+    {
+      id: 1,
+      name: 'Name',
+      location: 'Location',
+      date: 'DD/MM/YYYY',
+      status: 'Confirmed',
+      amount: 'Rp.0',
+      isCancelled: false
+    },
+    {
+      id: 2,
+      name: 'Name',
+      location: 'Location',
+      date: 'DD/MM/YYYY',
+      status: 'Confirmed',
+      amount: 'Rp.0',
+      isCancelled: false
+    },
+    {
+      id: 3,
+      name: 'Name',
+      location: 'Location',
+      date: 'DD/MM/YYYY',
+      status: 'Cancelled',
+      amount: 'Rp.0',
+      isCancelled: true
+    },
+    {
+      id: 4,
+      name: 'Name',
+      location: 'Location',
+      date: 'DD/MM/YYYY',
+      status: 'Confirmed',
+      amount: 'Rp.0',
+      isCancelled: false
+    }
+  ]
+
+  return (
+    <div className="space-y-3">
+      {orders.map((order) => (
+        <div
+          key={order.id}
+          className={`flex items-center justify-between p-3 rounded-lg border ${
+            order.isCancelled 
+              ? 'bg-red-50 border-red-200' 
+              : 'bg-white border-gray-200'
+          }`}
+        >
+          <div className="flex items-center space-x-3">
+            {/* Profile Avatar */}
+            <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+              <User className="w-4 h-4 text-gray-600" />
+            </div>
+            
+            {/* Order Details */}
+            <div className="flex-1">
+              <div className="flex items-center space-x-4 text-sm">
+                <span className="font-medium text-gray-900">{order.name}</span>
+                <div className="flex items-center space-x-1 text-gray-500">
+                  <MapPin className="w-3 h-3" />
+                  <span>{order.location}</span>
+                </div>
+                <div className="flex items-center space-x-1 text-gray-500">
+                  <Clock className="w-3 h-3" />
+                  <span>{order.date}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Status and Amount */}
+          <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-1">
+              {order.status === 'Confirmed' ? (
+                <CheckCircle className="w-4 h-4 text-success-600" />
+              ) : (
+                <XCircle className="w-4 h-4 text-red-600" />
+              )}
+              <span className={`text-sm font-medium ${
+                order.status === 'Confirmed' 
+                  ? 'text-success-600' 
+                  : 'text-red-600'
+              }`}>
+                {order.status}
+              </span>
+            </div>
+            <span className="text-sm font-medium text-gray-900">{order.amount}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+export default CustomerOrders
