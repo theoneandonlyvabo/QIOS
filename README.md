@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # QIOS - Quality Integrated Omni System
 
 QIOS (Quality Integrated Omni System) adalah SaaS yang diposisikan sebagai companion strategis bagi UMKM dan SMB untuk mengorkestrasi workflow bisnis secara utuh, mulai dari transaksi kasir hingga pembayaran kewajiban rutin seperti PLN, PDAM, dan supplier, sekaligus pemantauan stok serta tren pasar dari waktu ke waktu.
@@ -278,3 +279,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 **QIOS Team** - Building the future of retail management for UMKM and SMBs 🚀
+=======
+# PRD (Product Requirement Document)
+https://docs.google.com/document/d/1yeakxIoJzbkgzuByYyy44pqg5LTM1gRtHFRlMbJ6ZUo/edit?usp=sharing
+>>>>>>> 89227fd95c77c2e242b602cfb1a209d4928dcc06
