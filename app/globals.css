@@ -15,6 +15,8 @@
 @layer components {
   .card {
     @apply bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6;
+    /* remove any borders applied via markup */
+    border: none;
   }
   
   .btn-primary {
@@ -39,10 +41,24 @@
   
   .metric-card {
     @apply bg-white dark:bg-gray-800 rounded-xl p-6;
+    /* remove any borders applied via markup */
+    border: none;
   }
   
   .chart-container {
     @apply bg-white dark:bg-gray-800 rounded-xl p-6;
+    /* remove any borders applied via markup */
+    border: none;
+  }
+
+  /* Defensive rules: some components add explicit "border" classes to card-like containers.
+     These selectors target common card shapes (rounded + shadow/padding) and force-remove borders
+     so cards visually appear without outlines. Use sparingly to avoid hiding intentional borders. */
+  .rounded-lg.shadow-sm,
+  .rounded-xl.shadow-sm,
+  .rounded-lg.p-6,
+  .rounded-xl.p-6 {
+    border: none !important;
   }
 }
 

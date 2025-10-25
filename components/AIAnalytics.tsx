@@ -40,7 +40,15 @@ const AIAnalytics = () => {
   const [cashflowAnalysis, setCashflowAnalysis] = useState<CashflowAnalysis | null>(null)
   const [inventoryInsights, setInventoryInsights] = useState<InventoryInsights | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState<'insights' | 'cashflow' | 'inventory'>('insights')
+  const [activeTab, setActiveTab] = useState<
+    'business' | 
+    'cashflow' | 
+    'inventory' | 
+    'growth' | 
+    'monthly' | 
+    'trends' | 
+    'risks'
+  >('business')
 
   // Mock business data - in real app, this would come from your database
   const mockBusinessData = {
@@ -184,64 +192,104 @@ const AIAnalytics = () => {
         <div className="flex items-center space-x-3">
           <Brain className="w-8 h-8 text-primary-600" />
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">AI Analytics</h2>
-            <p className="text-gray-600">AI-powered business insights and recommendations</p>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Analitik AI</h2>
+            <p className="text-gray-600 dark:text-gray-400">Wawasan dan rekomendasi bisnis berbasis AI</p>
           </div>
         </div>
         <button
           onClick={() => {
-            if (activeTab === 'insights') generateInsights()
+            if (activeTab === 'business') generateInsights()
             else if (activeTab === 'cashflow') generateCashflowAnalysis()
             else if (activeTab === 'inventory') generateInventoryInsights()
           }}
           disabled={isLoading}
           className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 transition-colors"
         >
-          {isLoading ? 'Analyzing...' : 'Generate Analysis'}
+          {isLoading ? 'Menganalisis...' : 'Hasilkan Analisis'}
         </button>
       </div>
 
       {/* Tabs */}
-      <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
+      <div className="flex flex-wrap space-x-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
         <button
-          onClick={() => setActiveTab('insights')}
+          onClick={() => setActiveTab('business')}
           className={`flex-1 px-4 py-2 rounded-md transition-colors ${
-            activeTab === 'insights'
-              ? 'bg-white text-primary-600 shadow-sm'
-              : 'text-gray-600 hover:text-gray-900'
+            activeTab === 'business'
+              ? 'bg-white dark:bg-gray-700 text-primary-600 shadow-sm'
+              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
           }`}
         >
-          Business Insights
+          Wawasan Bisnis
         </button>
         <button
           onClick={() => setActiveTab('cashflow')}
           className={`flex-1 px-4 py-2 rounded-md transition-colors ${
             activeTab === 'cashflow'
-              ? 'bg-white text-primary-600 shadow-sm'
-              : 'text-gray-600 hover:text-gray-900'
+              ? 'bg-white dark:bg-gray-700 text-primary-600 shadow-sm'
+              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
           }`}
         >
-          Cashflow Analysis
+          Analisis Arus Kas
         </button>
         <button
           onClick={() => setActiveTab('inventory')}
           className={`flex-1 px-4 py-2 rounded-md transition-colors ${
             activeTab === 'inventory'
-              ? 'bg-white text-primary-600 shadow-sm'
-              : 'text-gray-600 hover:text-gray-900'
+              ? 'bg-white dark:bg-gray-700 text-primary-600 shadow-sm'
+              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
           }`}
         >
-          Inventory Insights
+          Wawasan Inventori
+        </button>
+        <button
+          onClick={() => setActiveTab('growth')}
+          className={`flex-1 px-4 py-2 rounded-md transition-colors ${
+            activeTab === 'growth'
+              ? 'bg-white dark:bg-gray-700 text-primary-600 shadow-sm'
+              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+          }`}
+        >
+          Analisis Pertumbuhan
+        </button>
+        <button
+          onClick={() => setActiveTab('monthly')}
+          className={`flex-1 px-4 py-2 rounded-md transition-colors ${
+            activeTab === 'monthly'
+              ? 'bg-white dark:bg-gray-700 text-primary-600 shadow-sm'
+              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+          }`}
+        >
+          Evaluasi Bulanan
+        </button>
+        <button
+          onClick={() => setActiveTab('trends')}
+          className={`flex-1 px-4 py-2 rounded-md transition-colors ${
+            activeTab === 'trends'
+              ? 'bg-white dark:bg-gray-700 text-primary-600 shadow-sm'
+              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+          }`}
+        >
+          Prediksi Tren
+        </button>
+        <button
+          onClick={() => setActiveTab('risks')}
+          className={`flex-1 px-4 py-2 rounded-md transition-colors ${
+            activeTab === 'risks'
+              ? 'bg-white dark:bg-gray-700 text-primary-600 shadow-sm'
+              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+          }`}
+        >
+          Mitigasi Risiko
         </button>
       </div>
 
       {/* Content */}
-      {activeTab === 'insights' && (
+      {activeTab === 'business' && (
         <div className="space-y-4">
           {insights.length === 0 ? (
             <div className="text-center py-12">
-              <Brain className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500">Click "Generate Analysis" to get AI-powered business insights</p>
+              <Brain className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+              <p className="text-gray-500 dark:text-gray-400">Klik "Hasilkan Analisis" untuk mendapatkan wawasan bisnis berbasis AI</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
