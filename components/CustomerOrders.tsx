@@ -1,46 +1,61 @@
 'use client'
 
+import React, { useEffect, useState } from 'react'
 import { User, MapPin, Clock, CheckCircle, XCircle } from 'lucide-react'
+import type { Order } from '../types'
 
-const CustomerOrders = () => {
-  const orders = [
-    {
-      id: 1,
-      name: 'Nama',
-      location: 'Lokasi',
-      date: 'DD/MM/YYYY',
-      status: 'Dikonfirmasi',
-      amount: 'Rp.0',
-      isCancelled: false
-    },
-    {
-      id: 2,
-      name: 'Nama',
-      location: 'Lokasi',
-      date: 'DD/MM/YYYY',
-      status: 'Dikonfirmasi',
-      amount: 'Rp.0',
-      isCancelled: false
-    },
-    {
-      id: 3,
-      name: 'Nama',
-      location: 'Lokasi',
-      date: 'DD/MM/YYYY',
-      status: 'Dibatalkan',
-      amount: 'Rp.0',
-      isCancelled: true
-    },
-    {
-      id: 4,
-      name: 'Nama',
-      location: 'Lokasi',
-      date: 'DD/MM/YYYY',
-      status: 'Dikonfirmasi',
-      amount: 'Rp.0',
-      isCancelled: false
+const CustomerOrders: React.FC = () => {
+  const [orders, setOrders] = useState<Order[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        setIsLoading(true)
+        setError(null)
+        const res = await fetch('/api/orders')
+        if (!res.ok) throw new Error(`Failed to fetch orders (${res.status})`)
+        const payload = await res.json()
+        // Support standardized APIResponse or raw array
+        const data = payload?.data ?? payload
+        setOrders(Array.isArray(data) ? data : [])
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Unknown error')
+      } finally {
+        setIsLoading(false)
+      }
     }
-  ]
+
+    fetchOrders()
+  }, [])
+
+  if (isLoading) {
+    return (
+      <div className="space-y-3">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="animate-pulse flex items-center justify-between p-3 rounded-lg border bg-gray-100 dark:bg-gray-800">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-gray-300 rounded-full" />
+              <div className="flex-1 space-y-1">
+                <div className="h-3 bg-gray-300 rounded w-48" />
+                <div className="h-3 bg-gray-200 rounded w-32" />
+              </div>
+            </div>
+            <div className="w-24 h-4 bg-gray-300 rounded" />
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  if (error) {
+    return <div className="text-red-600">Error loading orders: {error}</div>
+  }
+
+  if (!orders.length) {
+    return <div className="text-gray-500">Belum ada pesanan.</div>
+  }
 
   return (
     <div className="space-y-3">
@@ -48,8 +63,8 @@ const CustomerOrders = () => {
         <div
           key={order.id}
           className={`flex items-center justify-between p-3 rounded-lg border ${
-            order.isCancelled 
-              ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800' 
+            order.isCancelled
+              ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
               : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
           }`}
         >
@@ -58,7 +73,7 @@ const CustomerOrders = () => {
             <div className="w-8 h-8 bg-gray-300 dark:bg-gray-700 rounded-full flex items-center justify-center">
               <User className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             </div>
-            
+
             {/* Order Details */}
             <div className="flex-1">
               <div className="flex items-center space-x-4 text-sm">
@@ -74,7 +89,7 @@ const CustomerOrders = () => {
               </div>
             </div>
           </div>
-          
+
           {/* Status and Amount */}
           <div className="flex items-center space-x-3">
             <div className="flex items-center space-x-1">
@@ -84,9 +99,7 @@ const CustomerOrders = () => {
                 <XCircle className="w-4 h-4 text-red-600" />
               )}
               <span className={`text-sm font-medium ${
-                order.status === 'Confirmed' 
-                  ? 'text-success-600' 
-                  : 'text-red-600'
+                order.status === 'Dikonfirmasi' ? 'text-success-600' : 'text-red-600'
               }`}>
                 {order.status}
               </span>

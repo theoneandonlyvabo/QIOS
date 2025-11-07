@@ -73,3 +73,9 @@
     text-wrap: balance;
   }
 }
+
+/* Defensive: ensure interactive elements remain clickable even if other styles accidentally disable pointer events */
+button, a, input, select, textarea {
+  pointer-events: auto !important;
+  cursor: pointer;
+}
