@@ -1,0 +1,262 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User & Authentication
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String
+  role          Role      @default(STAFF)
+  storeId       String
+  store         Store     @relation(fields: [storeId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  orders        Order[]
+  notifications Notification[]
+}
+
+enum Role {
+  OWNER
+  MANAGER
+  STAFF
+}
+
+// Store/Business
+model Store {
+  id        String   @id @default(cuid())
+  name      String
+  address   String?
+  phone     String?
+  email     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  users     User[]
+  products  Product[]
+  customers Customer[]
+  orders    Order[]
+  expenses  Expense[]
+  rawMaterials RawMaterial[]
+}
+
+// Raw Materials (Resources)
+model RawMaterial {
+  id              String   @id @default(cuid())
+  name            String
+  stock           Float    // gram, ml, pcs
+  unit            String   // "gram", "ml", "pcs"
+  minStockLevel   Float    // 20% of initial for alerts
+  initialStock    Float    // for reset functionality
+  cost            Float    // cost per unit
+  storeId         String
+  store           Store    @relation(fields: [storeId], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  recipes         Recipe[]
+  movements       RawMaterialMovement[]
+}
+
+// Recipe: Product composition
+model Recipe {
+  id              String   @id @default(cuid())
+  productId       String
+  product         Product  @relation(fields: [productId], references: [id])
+  rawMaterialId   String
+  rawMaterial     RawMaterial @relation(fields: [rawMaterialId], references: [id])
+  quantity        Float    // amount needed per product
+  createdAt       DateTime @default(now())
+}
+
+// Raw Material Stock Movements
+model RawMaterialMovement {
+  id              String   @id @default(cuid())
+  rawMaterialId   String
+  rawMaterial     RawMaterial @relation(fields: [rawMaterialId], references: [id])
+  type            RawMovementType
+  quantity        Float
+  notes           String?
+  orderId         String?  // link to order if related
+  createdAt       DateTime @default(now())
+}
+
+enum RawMovementType {
+  IN
+  OUT
+  ADJUSTMENT
+}
+
+// Products & Inventory
+model Product {
+  id              String   @id @default(cuid())
+  sku             String   @unique
+  name            String
+  description     String?
+  category        String
+  price           Float
+  cost            Float    // calculated from recipe
+  stockQuantity   Float    @default(0) // Current stock level
+  minStockLevel   Float    @default(0) // Minimum stock threshold
+  isFinishedProduct Boolean @default(true)
+  storeId         String
+  store           Store    @relation(fields: [storeId], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  recipes         Recipe[]
+  orderItems      OrderItem[]
+  stockMovements  StockMovement[]
+}
+
+// Stock movement kept for finished products as well
+model StockMovement {
+  id          String   @id @default(cuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+  type        MovementType
+  quantity    Float
+  notes       String?
+  createdAt   DateTime @default(now())
+}
+
+// Ensure Product has stockMovements relation
+
+enum MovementType {
+  IN
+  OUT
+  ADJUSTMENT
+}
+
+// Customers
+model Customer {
+  id          String   @id @default(cuid())
+  name        String
+  email       String?
+  phone       String   @unique
+  address     String?
+  segment     CustomerSegment @default(NEW)
+  totalTransactions Int    @default(0)
+  totalSpent  Float    @default(0)
+  lastVisit   DateTime?
+  storeId     String
+  store       Store    @relation(fields: [storeId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  orders      Order[]
+}
+
+enum CustomerSegment {
+  VIP
+  REGULAR
+  NEW
+  INACTIVE
+}
+
+// Orders & Transactions
+model Order {
+  id              String      @id @default(cuid())
+  orderNumber     String      @unique
+  customerId      String
+  customer        Customer    @relation(fields: [customerId], references: [id])
+  storeId         String
+  store           Store       @relation(fields: [storeId], references: [id])
+  userId          String? 
+  user            User?       @relation(fields: [userId], references: [id])
+  status          OrderStatus @default(COMPLETED) // COMPLETED when order done
+  paymentMethod   String      // QRIS, CASH, DANA, OVO, etc
+  paymentStatus   PaymentStatus @default(PENDING) // PENDING until "Tarik Dana"
+  paymentReference String?     // Midtrans transaction ID
+  subtotal        Float
+  tax             Float       @default(0)
+  discount        Float       @default(0)
+  total           Float
+  notes           String?
+  transactionDate DateTime    
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  
+  items           OrderItem[]
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model OrderItem {
+  id          String   @id @default(cuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id])
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+  quantity    Int
+  price       Float
+  subtotal    Float
+  createdAt   DateTime @default(now())
+}
+
+// Expenses
+model Expense {
+  id          String   @id @default(cuid())
+  storeId     String
+  store       Store    @relation(fields: [storeId], references: [id])
+  category    ExpenseCategory
+  amount      Float
+  description String
+  date        DateTime
+  createdAt   DateTime @default(now())
+}
+
+enum ExpenseCategory {
+  COGS
+  OPERATIONAL
+  MARKETING
+  SALARY
+  UTILITY
+  OTHERS
+}
+
+// Notifications
+model Notification {
+  id        String   @id @default(cuid())
+  storeId   String?
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  type      NotificationType
+  title     String
+  message   String
+  severity  NotificationSeverity @default(INFO)
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+enum NotificationType {
+  ORDER
+  INVENTORY
+  PAYMENT
+  SYSTEM
+}
+
+enum NotificationSeverity {
+  INFO
+  WARNING
+  ERROR
+  SUCCESS
+}
