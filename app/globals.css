@@ -2,6 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+/* CSS variables for brand colors */
+:root {
+  --primary: #db3514;
+  --primary-hover: #c42e12;
+  --primary-light: #fecaca;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+}
+
 @layer base {
   /* Base typography */
   html {

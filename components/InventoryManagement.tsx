@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Package, AlertTriangle, PlusCircle, RefreshCcw, Eye } from 'lucide-react'
 
 interface Product {
@@ -22,46 +22,45 @@ interface StockMovement {
   reason: string
 }
 
-const InventoryManagement = () => {
-  const [products] = useState<Product[]>([
-    {
-      id: '1',
-      name: 'Produk A',
-      category: 'Elektronik',
-      stock: 5,
-      minStock: 10,
-      price: 150000,
-      lastRestocked: '2025-10-20'
-    },
-    {
-      id: '2',
-      name: 'Produk B',
-      category: 'Pakaian',
-      stock: 3,
-      minStock: 15,
-      price: 75000,
-      lastRestocked: '2025-10-15'
-    }
-  ])
+const InventoryManagement = ({ storeId }: { storeId?: string }) => {
+  const [products, setProducts] = useState<Product[]>([])
+  const [movements, setMovements] = useState<StockMovement[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const [movements] = useState<StockMovement[]>([
-    {
-      id: '1',
-      productId: '1',
-      type: 'in',
-      quantity: 10,
-      date: '2025-10-20',
-      reason: 'Restok rutin'
-    },
-    {
-      id: '2',
-      productId: '1',
-      type: 'out',
-      quantity: 5,
-      date: '2025-10-21',
-      reason: 'Penjualan'
+  // Fetch inventory from API when storeId is available
+  useEffect(() => {
+    if (!storeId) return
+
+    const fetchInventory = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const res = await fetch(`/api/inventory?storeId=${storeId}`)
+        if (!res.ok) throw new Error('Failed to fetch inventory')
+        const data = await res.json()
+        // API returns products and counts
+        setProducts((data.products || []).map((p: any) => ({
+          id: String(p.id),
+          name: p.name,
+          category: p.category || '',
+          stock: p.stockQuantity ?? p.stock ?? 0,
+          minStock: p.minStockLevel ?? p.minStock ?? 0,
+          price: p.price ?? p.cost ?? 0,
+          lastRestocked: p.updatedAt ?? p.lastRestocked ?? ''
+        })))
+        // movements not provided by this endpoint; keep empty for now
+        setMovements([])
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Error fetching inventory')
+        console.error('InventoryManagement fetch error:', err)
+      } finally {
+        setLoading(false)
+      }
     }
-  ])
+
+    fetchInventory()
+  }, [storeId])
 
   const getLowStockProducts = () => {
     return products.filter(product => product.stock < product.minStock)

@@ -12,32 +12,33 @@ interface Customer {
   loyaltyScore: number
 }
 
-const CustomerAnalytics = () => {
+const CustomerAnalytics = ({ storeId }: { storeId?: string }) => {
   const [customers, setCustomers] = useState<Customer[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const mockCustomers: Customer[] = [
-      {
-        id: '1',
-        name: 'Ahmad Wijaya',
-        email: 'ahmad@email.com',
-        totalSpent: 2500000,
-        totalOrders: 15,
-        segment: 'vip',
-        loyaltyScore: 95
-      },
-      {
-        id: '2',
-        name: 'Siti Nurhaliza',
-        email: 'siti@email.com',
-        totalSpent: 1200000,
-        totalOrders: 8,
-        segment: 'loyal',
-        loyaltyScore: 78
+    if (!storeId) return
+
+    const fetchCustomers = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const res = await fetch(`/api/customers?storeId=${storeId}`)
+        if (!res.ok) throw new Error('Failed to fetch customers')
+        const data = await res.json()
+        // API returns { customers }
+        setCustomers(data.customers || [])
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Error fetching customers')
+        console.error('CustomerAnalytics fetch error:', err)
+      } finally {
+        setLoading(false)
       }
-    ]
-    setCustomers(mockCustomers)
-  }, [])
+    }
+
+    fetchCustomers()
+  }, [storeId])
 
   const getSegmentColor = (segment: string) => {
     switch (segment) {

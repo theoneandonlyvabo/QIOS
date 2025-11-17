@@ -60,9 +60,20 @@ const Dashboard = ({ activeView = 'overview', storeId }: DashboardProps) => {
     start: '2025-10-01',
     end: '2025-10-31'
   })
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [dashboardData, setDashboardData] = useState<DashboardMetrics | null>(null)
+  const ZERO_DASHBOARD: DashboardMetrics = {
+    totalRevenue: 0,
+    totalOrders: 0,
+    pendingOrders: 0,
+    activeCustomers: 0,
+    lowStockAlert: {
+      count: 0,
+      products: []
+    }
+  }
+
+  const [dashboardData, setDashboardData] = useState<DashboardMetrics>(ZERO_DASHBOARD)
   const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([])
 
   useEffect(() => {
@@ -161,11 +172,11 @@ const Dashboard = ({ activeView = 'overview', storeId }: DashboardProps) => {
         case 'analytics':
           return <AIAnalytics />
         case 'inventory':
-          return <InventoryManagement />
+          return <InventoryManagement storeId={storeId} />
         case 'notifications':
-          return <NotificationCenter />
+          return <NotificationCenter storeId={storeId} />
         case 'customers':
-          return <CustomerAnalytics />
+          return <CustomerAnalytics storeId={storeId} />
         case 'team':
           return <TeamManagement />
         case 'transactions':
@@ -228,7 +239,7 @@ const Dashboard = ({ activeView = 'overview', storeId }: DashboardProps) => {
                       key={index}
                       title={metric.title}
                       value={metric.value}
-                      trend={metric.trend}
+                      trend={metric.trend as 'up' | 'down' | 'neutral'}
                       insight={metric.insight}
                       icon={metric.icon}
                     />

@@ -7,10 +7,10 @@ export async function GET() {
   }
 
   try {
-    console.log('[DEV API] Fetching products...');
+  // console.log('[DEV API] Fetching products...');
 
-    const totalProducts = await prisma.product.count();
-    console.log(`[DEV API] Total products in DB: ${totalProducts}`);
+  const totalProducts = await prisma.product.count();
+  // console.log(`[DEV API] Total products in DB: ${totalProducts}`);
 
     if (totalProducts === 0) {
       return NextResponse.json({ products: [], warning: 'No products found. Run seed: npx ts-node prisma/seed-coffee-shop.ts' });
@@ -27,7 +27,7 @@ export async function GET() {
       orderBy: { name: 'asc' }
     });
 
-    console.log(`[DEV API] Returning ${products.length} products`);
+  // console.log(`[DEV API] Returning ${products.length} products`);
 
     return NextResponse.json({ products, count: products.length });
   } catch (error: any) {

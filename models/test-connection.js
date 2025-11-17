@@ -2,12 +2,12 @@ const pool = require('./database');
 
 async function testConnection() {
     try {
-        const client = await pool.connect();
-        console.log('Successfully connected to PostgreSQL');
+    const client = await pool.connect();
+    // console.log('Successfully connected to PostgreSQL');
         
-        // Test query
-        const result = await client.query('SELECT NOW()');
-        console.log('Database time:', result.rows[0].now);
+    // Test query
+    const result = await client.query('SELECT NOW()');
+    // console.log('Database time:', result.rows[0].now);
         
         client.release();
     } catch (err) {

@@ -10,10 +10,10 @@ const client = new Client({
 
 async function testConnection() {
   try {
-    await client.connect();
-    console.log('Connected to PostgreSQL!');
-    const res = await client.query('SELECT NOW()');
-    console.log('Current time in DB:', res.rows[0]);
+  await client.connect();
+  // console.log('Connected to PostgreSQL!');
+  const res = await client.query('SELECT NOW()');
+  // console.log('Current time in DB:', res.rows[0]);
     await client.end();
   } catch (err) {
     console.error('Connection error:', err);

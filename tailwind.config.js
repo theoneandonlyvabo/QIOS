@@ -9,18 +9,18 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Primary: Trust & Action (Blue spectrum)
+        // Primary: QIOS brand (reddish-orange)
         primary: {
-          50: '#EFF6FF',
-          100: '#DBEAFE',
-          200: '#BFDBFE',
-          300: '#93C5FD',
-          400: '#60A5FA',
-          500: '#3B82F6',
-          600: '#2563EB',
-          700: '#1D4ED8',
-          800: '#1E40AF',
-          900: '#1E3A8A',
+          50: '#fef2f2',
+          100: '#fee2e2',
+          200: '#fecaca',
+          300: '#fca5a5',
+          400: '#f87171',
+          500: '#db3514',  // main brand
+          600: '#c42e12',
+          700: '#a32510',
+          800: '#7f1d0d',
+          900: '#661a0d',
         },
         // Success: Positive metrics (Green)
         success: {

@@ -62,8 +62,8 @@ export default function BundleGenerator() {
         throw new Error('Store setup failed - please run seed script first');
       }
 
-      setProgress(`Generating ${scenarioData.transactions} transactions...`);
-      console.log(`[BundleGen] Starting ${scenario}...`);
+  setProgress(`Generating ${scenarioData.transactions} transactions...`);
+  // console.log(`[BundleGen] Starting ${scenario}...`);
 
       const res = await fetch('/api/dev/generate-bundle', {
         method: 'POST',
@@ -71,7 +71,7 @@ export default function BundleGenerator() {
         body: JSON.stringify({ scenario })
       });
 
-      console.log(`[BundleGen] Response status: ${res.status}`);
+  // console.log(`[BundleGen] Response status: ${res.status}`);
 
       if (!res.ok) {
         const errorData = await res.json();
@@ -79,7 +79,7 @@ export default function BundleGenerator() {
       }
 
       const data = await res.json();
-      console.log('[BundleGen] Success:', data);
+  // console.log('[BundleGen] Success:', data);
 
       setProgress('');
       setResult(`✅ Generated successfully!
@@ -144,7 +144,7 @@ Check browser console (F12) for detailed error logs.`);
     <div className="space-y-6">
       {/* Progress Indicator */}
       {progress && (
-        <div className="bg-blue-100 border-2 border-blue-600 p-4 font-bold">
+        <div className="bg-primary-50 border-2 border-primary-600 p-4 font-bold">
           ⏳ {progress}
         </div>
       )}
@@ -161,7 +161,7 @@ Check browser console (F12) for detailed error logs.`);
               <button
                 onClick={() => generateBundle(key as Scenario)}
                 disabled={generating}
-                className="bg-blue-600 text-white px-6 py-3 font-bold border-2 border-blue-800 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                className="bg-primary-500 text-white px-6 py-3 font-bold border-2 border-primary-700 disabled:bg-gray-400 disabled:cursor-not-allowed hover:bg-primary-600"
               >
                 {generating ? 'GENERATING...' : 'GENERATE'}
               </button>
