@@ -2,54 +2,188 @@
 @tailwind components;
 @tailwind utilities;
 
+/* CSS variables for brand colors */
 :root {
-  --primary: #dc3514;
+  --primary: #db3514;
+  --primary-hover: #c42e12;
+  --primary-light: #fecaca;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
 }
 
 @layer base {
+  /* Base typography */
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
   body {
-    @apply bg-gray-50 text-gray-900;
+    @apply bg-neutral-50 text-neutral-900;
+  }
+
+  /* Typography scale */
+  .display-1 {
+    @apply text-5xl font-bold leading-tight;     /* 48px */
+  }
+  .display-2 {
+    @apply text-4xl font-bold leading-tight;     /* 36px */
+  }
+  
+  h1, .h1 {
+    @apply text-3xl font-semibold leading-tight; /* 30px */
+  }
+  h2, .h2 {
+    @apply text-2xl font-semibold leading-snug;  /* 24px */
+  }
+  h3, .h3 {
+    @apply text-xl font-semibold leading-snug;   /* 20px */
+  }
+  h4, .h4 {
+    @apply text-lg font-semibold leading-normal; /* 18px */
+  }
+
+  .body-lg {
+    @apply text-base font-normal leading-relaxed;   /* 16px */
+  }
+  .body-base {
+    @apply text-sm font-normal leading-relaxed;    /* 14px */
+  }
+  .body-sm {
+    @apply text-xs font-normal leading-normal;     /* 12px */
+  }
+
+  .label-base {
+    @apply text-sm font-medium leading-none;       /* 14px */
+  }
+  .label-sm {
+    @apply text-xs font-medium leading-none;       /* 12px */
+  }
+
+  .caption {
+    @apply text-xs font-normal leading-tight text-neutral-500; /* 12px */
+  }
+
+  /* Focus states */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-primary-500 ring-offset-2;
   }
 }
 
 @layer components {
+  /* Card variants */
   .card {
-    @apply bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6;
-    /* remove any borders applied via markup */
-    border: none;
+    @apply bg-white dark:bg-neutral-800 rounded-xl shadow-md p-6 transition-shadow duration-200;
+  }
+  
+  .card-hover {
+    @apply hover:shadow-lg transform hover:-translate-y-1 transition-all duration-200;
+  }
+  
+  /* Button variants */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200;
   }
   
   .btn-primary {
-    @apply bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+    @apply btn bg-primary-600 hover:bg-primary-700 text-white shadow-sm hover:shadow;
   }
   
   .btn-secondary {
-    @apply bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+    @apply btn bg-white hover:bg-neutral-50 text-neutral-700 border border-neutral-200 shadow-sm hover:shadow;
   }
   
+  .btn-success {
+    @apply btn bg-success-500 hover:bg-success-600 text-white shadow-sm hover:shadow;
+  }
+  
+  .btn-danger {
+    @apply btn bg-danger-500 hover:bg-danger-600 text-white shadow-sm hover:shadow;
+  }
+
+  .btn-sm {
+    @apply px-3 py-1.5 text-sm;
+  }
+
+  .btn-lg {
+    @apply px-6 py-3 text-base;
+  }
+  
+  /* Form controls */
   .input-field {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+    @apply w-full px-4 py-2 text-sm text-neutral-900 bg-white border border-neutral-200 rounded-lg 
+           placeholder:text-neutral-400
+           focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
+           disabled:bg-neutral-50 disabled:text-neutral-400 disabled:cursor-not-allowed
+           transition-colors duration-200;
   }
   
-  .sidebar-item {
-    @apply flex items-center px-4 py-2 text-sm font-medium rounded-full transition-all duration-200;
+  /* Navigation items */
+  .nav-item {
+    @apply flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200;
   }
   
-  .sidebar-item-inactive {
-    @apply text-gray-600 hover:bg-gray-100 hover:text-gray-900;
+  .nav-item-active {
+    @apply bg-primary-50 text-primary-700;
   }
   
+  .nav-item-inactive {
+    @apply text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900;
+  }
+
+  /* Metric cards */
   .metric-card {
-    @apply bg-white dark:bg-gray-800 rounded-xl p-6;
-    /* remove any borders applied via markup */
-    border: none;
+    @apply card border-l-4 border-transparent;
   }
   
-  .chart-container {
-    @apply bg-white dark:bg-gray-800 rounded-xl p-6;
-    /* remove any borders applied via markup */
-    border: none;
+  .metric-card-success {
+    @apply border-l-success-500 bg-success-50;
   }
+  
+  .metric-card-warning {
+    @apply border-l-warning-500 bg-warning-50;
+  }
+  
+  .metric-card-danger {
+    @apply border-l-danger-500 bg-danger-50;
+  }
+
+  /* Chart container */
+  .chart-container {
+    @apply card p-0 overflow-hidden;
+  }
+  
+  .chart-header {
+    @apply p-6 border-b border-neutral-200;
+  }
+  
+  .chart-body {
+    @apply p-6;
+  }
+  
+  /* Status badges */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold;
+  }
+  
+  .badge-success {
+    @apply bg-success-100 text-success-700;
+  }
+  
+  .badge-warning {
+    @apply bg-warning-100 text-warning-700;
+  }
+  
+  .badge-danger {
+    @apply bg-danger-100 text-danger-700;
+  }
+  
+  /* Skeleton loading */
+  .skeleton {
+    @apply animate-pulse bg-neutral-200 rounded;
+  }
+
 
   /* Defensive rules: some components add explicit "border" classes to card-like containers.
      These selectors target common card shapes (rounded + shadow/padding) and force-remove borders
@@ -72,4 +206,10 @@
   .text-balance {
     text-wrap: balance;
   }
+}
+
+/* Defensive: ensure interactive elements remain clickable even if other styles accidentally disable pointer events */
+button, a, input, select, textarea {
+  pointer-events: auto !important;
+  cursor: pointer;
 }

@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
-import { Calendar, Moon, Sun, User } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Calendar, Moon, Sun, User, Loader2 } from 'lucide-react'
 import MetricCard from '@/components/MetricCard'
+import { formatCurrency } from '@/lib/utils'
 import SalesChart from '@/components/SalesChart'
 import CustomerOrders from '@/components/CustomerOrders'
 import UserActivityChart from '@/components/UserActivityChart'
@@ -13,17 +14,99 @@ import TransactionManagement from '@/components/TransactionManagement'
 import AIAnalytics from '@/components/AIAnalytics'
 import InventoryManagement from '@/components/InventoryManagement'
 
-interface DashboardProps {
-  activeView?: string
+interface DashboardMetrics {
+  totalRevenue: number;
+  totalOrders: number;
+  pendingOrders: number;
+  activeCustomers: number;
+  lowStockAlert: {
+    count: number;
+    products: Array<{
+      id: string;
+      name: string;
+      sku: string;
+      stockQuantity: number;
+      minStockLevel: number;
+    }>;
+  };
 }
 
-const Dashboard = ({ activeView = 'overview' }: DashboardProps) => {
+interface DashboardProps {
+  activeView?: string;
+  storeId: string;
+}
+
+interface Transaction {
+  id: string;
+  orderNumber: string;
+  customer: string;
+  customerSegment: string;
+  total: number;
+  date: string;
+  status: string;
+  paymentStatus: string;
+  items: Array<{
+    product: string;
+    quantity: number;
+    price: number;
+    subtotal: number;
+  }>;
+}
+
+const Dashboard = ({ activeView = 'overview', storeId }: DashboardProps) => {
   const [selectedYear, setSelectedYear] = useState('2024')
   const [isDarkMode, setIsDarkMode] = useState(false)
   const [dateRange, setDateRange] = useState<{ start: string; end: string }>({
     start: '2025-10-01',
     end: '2025-10-31'
   })
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const ZERO_DASHBOARD: DashboardMetrics = {
+    totalRevenue: 0,
+    totalOrders: 0,
+    pendingOrders: 0,
+    activeCustomers: 0,
+    lowStockAlert: {
+      count: 0,
+      products: []
+    }
+  }
+
+  const [dashboardData, setDashboardData] = useState<DashboardMetrics>(ZERO_DASHBOARD)
+  const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([])
+
+  useEffect(() => {
+    if (!storeId) return;
+    
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await fetch(`/api/dashboard/metrics?storeId=${storeId}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch dashboard data');
+        }
+        const data = await response.json();
+        if (data.status === 'success') {
+          setDashboardData(data.metrics);
+          setRecentTransactions(data.recentTransactions);
+        } else {
+          throw new Error(data.message || 'Failed to fetch dashboard data');
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+        console.error('Dashboard data fetch error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+    // Refresh data every 30 seconds
+    const interval = setInterval(fetchDashboardData, 30000);
+    return () => clearInterval(interval);
+  }, [storeId]);
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode)
@@ -41,64 +124,47 @@ const Dashboard = ({ activeView = 'overview' }: DashboardProps) => {
     return titles[view] || 'Dasbor'
   }
 
-  const metrics = [
-    {
-      title: 'Pesanan',
-      value: 'n/a',
-      trend: 'up' as const,
-      insight: 'Wawasan Bisnis',
-      icon: 'List'
-    },
-    {
-      title: 'Tertunda',
-      value: 'n/a',
-      trend: 'down' as const,
-      insight: 'Wawasan Bisnis',
-      icon: 'MoreHorizontal'
-    },
-    {
-      title: 'Tren Produk',
-      value: '0% n/a',
-      trend: 'neutral' as const,
-      insight: '0% n/a',
-      icon: 'TrendingUp'
-    },
-    {
-      title: 'Retensi',
-      value: '0% n/a',
-      trend: 'neutral' as const,
-      insight: '0% n/a',
-      icon: 'Smile'
-    },
-    {
-      title: 'Total Bulan',
-      value: 'n/a',
-      trend: 'up' as const,
-      insight: 'Wawasan Bisnis',
-      icon: 'BarChart3'
-    },
-    {
-      title: 'Pendapatan',
-      value: 'n/a',
-      trend: 'up' as const,
-      insight: 'Wawasan Bisnis',
-      icon: 'Camera'
-    },
-    {
-      title: 'Faktur Dibayar',
-      value: 'Rp. n/a',
-      trend: 'neutral' as const,
-      insight: 'Wawasan Bisnis',
-      icon: 'Wallet'
-    },
-    {
-      title: 'Faktur Mendatang',
-      value: 'Rp. n/a',
-      trend: 'neutral' as const,
-      insight: 'Wawasan Bisnis',
-      icon: 'Wallet'
-    }
-  ]
+  const getMetrics = () => {
+    if (!dashboardData) return [];
+    
+    return [
+      {
+        title: 'Total Pesanan',
+        value: dashboardData.totalOrders.toString(),
+        trend: 'up' as const,
+        insight: 'Total pesanan keseluruhan',
+        icon: 'List'
+      },
+      {
+        title: 'Pesanan Tertunda',
+        value: dashboardData.pendingOrders.toString(),
+        trend: dashboardData.pendingOrders > 5 ? 'down' : 'up' as const,
+        insight: 'Pesanan yang perlu diproses',
+        icon: 'MoreHorizontal'
+      },
+      {
+        title: 'Stok Menipis',
+        value: dashboardData.lowStockAlert.count.toString(),
+        trend: dashboardData.lowStockAlert.count > 0 ? 'down' : 'up' as const,
+        insight: `${dashboardData.lowStockAlert.count} produk perlu restock`,
+        icon: 'AlertTriangle'
+      },
+      {
+        title: 'Pelanggan Aktif',
+        value: dashboardData.activeCustomers.toString(),
+        trend: 'up' as const,
+        insight: 'Pelanggan dalam 30 hari terakhir',
+        icon: 'Users'
+      },
+      {
+        title: 'Pendapatan Total',
+        value: formatCurrency(dashboardData.totalRevenue),
+        trend: 'up' as const,
+        insight: 'Total pendapatan dari pesanan selesai',
+        icon: 'DollarSign'
+      }
+    ];
+  };
 
   const renderContent = () => {
     const content = (() => {
@@ -106,11 +172,11 @@ const Dashboard = ({ activeView = 'overview' }: DashboardProps) => {
         case 'analytics':
           return <AIAnalytics />
         case 'inventory':
-          return <InventoryManagement />
+          return <InventoryManagement storeId={storeId} />
         case 'notifications':
-          return <NotificationCenter />
+          return <NotificationCenter storeId={storeId} />
         case 'customers':
-          return <CustomerAnalytics />
+          return <CustomerAnalytics storeId={storeId} />
         case 'team':
           return <TeamManagement />
         case 'transactions':
@@ -158,17 +224,27 @@ const Dashboard = ({ activeView = 'overview' }: DashboardProps) => {
               </div>
 
               {/* Metrics Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {metrics.map((metric, index) => (
-                  <MetricCard
-                    key={index}
-                    title={metric.title}
-                    value={metric.value}
-                    trend={metric.trend}
-                    insight={metric.insight}
-                    icon={metric.icon}
-                  />
-                ))}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+                {loading ? (
+                  <div className="col-span-full flex justify-center items-center h-32">
+                    <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+                  </div>
+                ) : error ? (
+                  <div className="col-span-full text-center text-red-600 p-4">
+                    {error}
+                  </div>
+                ) : dashboardData ? (
+                  getMetrics().map((metric, index) => (
+                    <MetricCard
+                      key={index}
+                      title={metric.title}
+                      value={metric.value}
+                      trend={metric.trend as 'up' | 'down' | 'neutral'}
+                      insight={metric.insight}
+                      icon={metric.icon}
+                    />
+                  ))
+                ) : null}
               </div>
 
               {/* Charts Row */}
