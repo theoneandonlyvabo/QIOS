@@ -1,10 +1,11 @@
 export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
+  // Manual formatting to ensure consistency between server and client
+  // This prevents hydration errors caused by Intl.NumberFormat differences
+  const formatted = amount.toLocaleString('id-ID', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0
-  }).format(amount);
+  });
+  return `Rp${formatted}`;
 }
 
 export function formatDate(date: string | Date): string {

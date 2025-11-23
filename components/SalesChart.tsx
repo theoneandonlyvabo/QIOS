@@ -3,68 +3,64 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts'
 
 interface SalesChartProps {
-  year: string
+  data: Array<{
+    date: string
+    value: number
+  }>
 }
 
-const SalesChart = ({ year }: SalesChartProps) => {
-  const data = [
-    { month: 'JAN', value: 0 },
-    { month: 'FEB', value: 0 },
-    { month: 'MAR', value: 0 },
-    { month: 'APR', value: 0 },
-    { month: 'MEI', value: 0 },
-    { month: 'JUN', value: 0 },
-    { month: 'JUL', value: 0 },
-    { month: 'AGU', value: 0 },
-    { month: 'SEP', value: 0 },
-    { month: 'OKT', value: 0 },
-    { month: 'NOV', value: 0 },
-    { month: 'DES', value: 0 },
-  ]
+const SalesChart = ({ data }: SalesChartProps) => {
+  if (!data || data.length === 0) {
+    return (
+      <div className="h-64 flex items-center justify-center text-gray-400 bg-gray-50 dark:bg-gray-900 rounded-lg">
+        <p>Belum ada data penjualan</p>
+      </div>
+    )
+  }
 
   return (
     <div className="h-64">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-          <CartesianGrid 
-            strokeDasharray="3 3" 
-            stroke="var(--chart-grid-color, #f0f0f0)" 
+          <CartesianGrid
+            strokeDasharray="3 3"
+            stroke="var(--chart-grid-color, #f0f0f0)"
             className="dark:!stroke-gray-700"
           />
-          <XAxis 
-            dataKey="month" 
+          <XAxis
+            dataKey="date"
             axisLine={false}
             tickLine={false}
-            tick={{ 
-              fontSize: 12, 
+            tick={{
+              fontSize: 12,
               fill: 'var(--chart-text-color, #6b7280)',
               className: 'dark:!fill-gray-400'
             }}
           />
-          <YAxis 
+          <YAxis
             axisLine={false}
             tickLine={false}
-            tick={{ 
-              fontSize: 12, 
+            tick={{
+              fontSize: 12,
               fill: 'var(--chart-text-color, #6b7280)',
               className: 'dark:!fill-gray-400'
             }}
-            tickFormatter={(value) => 'N/A'}
+            tickFormatter={(value) => `Rp${(value / 1000000).toFixed(1)}M`}
           />
-          <Bar 
-            dataKey="value" 
+          <Bar
+            dataKey="value"
             fill="var(--chart-bar-color, #e5e7eb)"
             radius={[4, 4, 0, 0]}
             className="dark:!fill-gray-700"
           />
         </BarChart>
       </ResponsiveContainer>
-      
+
       {/* Dots at the base of bars */}
       <div className="flex justify-between mt-2 px-2">
         {data.map((_, index) => (
-          <div 
-            key={index} 
+          <div
+            key={index}
             className="w-2 h-2 bg-primary-600 dark:bg-primary-500 rounded-full"
           ></div>
         ))}

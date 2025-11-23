@@ -3,11 +3,16 @@ import { headers } from 'next/headers'
 import jwt from 'jsonwebtoken'
 
 export function middleware(req: Request) {
+    // Skip authentication in development mode
+    if (process.env.NODE_ENV === 'development') {
+        return NextResponse.next()
+    }
+
     try {
         // Ambil token dari header
         const headersList = headers()
         const authorization = headersList.get('authorization')
-        
+
         if (!authorization?.startsWith('Bearer ')) {
             throw new Error('Invalid token format')
         }
@@ -19,7 +24,7 @@ export function middleware(req: Request) {
 
         // Verifikasi token
         const decoded = jwt.verify(token, process.env.JWT_SECRET!)
-        
+
         // Token valid, lanjutkan ke handler
         return NextResponse.next()
 
@@ -39,6 +44,8 @@ export const config = {
         '/api/orders/:path*',
         '/api/customers/:path*',
         '/api/analytics/:path*',
-        '/api/payment/:path*'
+        '/api/payment/:path*',
+        '/api/dashboard/:path*',
+        '/api/notifications/:path*'
     ]
 }

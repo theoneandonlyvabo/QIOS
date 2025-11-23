@@ -14,8 +14,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if OpenAI API key is available
-    if (!process.env.OPENAI_API_KEY) {
+    // Check if Gemini API key is available
+    if (!process.env.GEMINI_API_KEY) {
       return NextResponse.json(
         { success: false, error: 'AI analytics not configured' },
         { status: 500 }
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Initialize AI Analytics
-    const analytics = new AIAnalytics(process.env.OPENAI_API_KEY)
+    const analytics = new AIAnalytics(process.env.GEMINI_API_KEY)
 
     // Generate cashflow analysis
     const analysis = await analytics.generateCashflowAnalysis(businessData as BusinessData)

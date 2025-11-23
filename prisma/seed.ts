@@ -102,7 +102,7 @@ async function main() {
         total: 275000,
         transactionDate: new Date(),
         items: {
-          create: productRecords.map(product => ({
+          create: productRecords.map((product: any) => ({
             productId: product.id,
             quantity: 1,
             price: product.price,

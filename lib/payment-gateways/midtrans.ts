@@ -1,4 +1,4 @@
-import CoreApi from 'midtrans-client'
+import midtransClient from 'midtrans-client'
 
 export interface MidtransConfig {
   serverKey: string
@@ -27,7 +27,7 @@ export class MidtransGateway {
   private coreApi: any
 
   constructor(config: MidtransConfig) {
-    this.coreApi = new CoreApi({
+    this.coreApi = new midtransClient.CoreApi({
       isProduction: config.isProduction,
       serverKey: config.serverKey,
       clientKey: config.clientKey,

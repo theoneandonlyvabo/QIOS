@@ -1,13 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { 
-  LayoutDashboard, 
-  BarChart3, 
-  Package, 
-  Bell, 
-  Users, 
-  Settings, 
+import {
+  LayoutDashboard,
+  BarChart3,
+  Package,
+  Bell,
+  Users,
+  Settings,
   LogOut,
   Phone,
   Image,
@@ -24,7 +24,7 @@ const Sidebar = ({ onNavigate }: SidebarProps) => {
   const [activeItem, setActiveItem] = useState('overview')
 
   const menuItems = [
-    { id: 'overview', icon: LayoutDashboard, label: 'Dasbor' },
+    { id: 'overview', icon: LayoutDashboard, label: 'Dashboard' },
     { id: 'analytics', icon: BarChart3, label: 'Analitik' },
     { id: 'inventory', icon: Package, label: 'Stok' },
     { id: 'notifications', icon: Bell, label: 'Notifikasi' },
@@ -55,8 +55,8 @@ const Sidebar = ({ onNavigate }: SidebarProps) => {
               onNavigate?.(item.id)
             }}
             className={`w-full flex items-center px-4 py-2 rounded-full text-sm
-              ${activeItem === item.id 
-                ? 'bg-primary-600 text-white' 
+              ${activeItem === item.id
+                ? 'bg-primary-600 text-white'
                 : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
               }`}
           >

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Brain, TrendingUp, AlertTriangle, Lightbulb, Package, DollarSign } from 'lucide-react'
+import { Brain, TrendingUp, AlertTriangle, Lightbulb, Package, DollarSign, Calendar } from 'lucide-react'
 
 interface BusinessInsight {
   type: 'trend' | 'anomaly' | 'recommendation' | 'warning'
@@ -35,44 +35,106 @@ interface InventoryInsights {
   recommendations: string[]
 }
 
+const getInsightIcon = (type: string) => {
+  switch (type) {
+    case 'trend':
+    case 'growth':
+    case 'opportunity':
+      return <TrendingUp className="w-5 h-5 text-blue-600" />
+    case 'warning':
+    case 'risk':
+    case 'challenge':
+      return <AlertTriangle className="w-5 h-5 text-red-600" />
+    case 'recommendation':
+    case 'strategy':
+      return <Lightbulb className="w-5 h-5 text-yellow-600" />
+    case 'anomaly':
+      return <Brain className="w-5 h-5 text-purple-600" />
+    default:
+      return <Brain className="w-5 h-5 text-gray-600" />
+  }
+}
+
+const getImpactColor = (impact: string) => {
+  switch (impact) {
+    case 'high':
+      return 'border-red-200 bg-red-50'
+    case 'medium':
+      return 'border-yellow-200 bg-yellow-50'
+    case 'low':
+      return 'border-green-200 bg-green-50'
+    default:
+      return 'border-gray-200 bg-gray-50'
+  }
+}
+
+const getUrgencyColor = (urgency: string) => {
+  switch (urgency) {
+    case 'high':
+      return 'text-red-600 bg-red-100'
+    case 'medium':
+      return 'text-yellow-600 bg-yellow-100'
+    case 'low':
+      return 'text-green-600 bg-green-100'
+    default:
+      return 'text-gray-600 bg-gray-100'
+  }
+}
+
 const AIAnalytics = () => {
   const [insights, setInsights] = useState<BusinessInsight[]>([])
   const [cashflowAnalysis, setCashflowAnalysis] = useState<CashflowAnalysis | null>(null)
   const [inventoryInsights, setInventoryInsights] = useState<InventoryInsights | null>(null)
+  const [growthInsights, setGrowthInsights] = useState<BusinessInsight[]>([])
+  const [monthlyInsights, setMonthlyInsights] = useState<BusinessInsight[]>([])
+  const [trendInsights, setTrendInsights] = useState<BusinessInsight[]>([])
+  const [riskInsights, setRiskInsights] = useState<BusinessInsight[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [businessData, setBusinessData] = useState<any>(null)
   const [activeTab, setActiveTab] = useState<
-    'business' | 
-    'cashflow' | 
-    'inventory' | 
-    'growth' | 
-    'monthly' | 
-    'trends' | 
+    'business' |
+    'cashflow' |
+    'inventory' |
+    'growth' |
+    'monthly' |
+    'trends' |
     'risks'
   >('business')
 
-  // Mock business data - in real app, this would come from your database
-  const mockBusinessData = {
-    sales: [
-      { date: '2024-01-01', amount: 1500000, items: 25, customerCount: 20 },
-      { date: '2024-01-02', amount: 1200000, items: 20, customerCount: 15 },
-      { date: '2024-01-03', amount: 1800000, items: 30, customerCount: 25 },
-    ],
-    inventory: [
-      { productId: '1', name: 'Product A', stock: 5, price: 50000, category: 'Electronics' },
-      { productId: '2', name: 'Product B', stock: 15, price: 75000, category: 'Clothing' },
-      { productId: '3', name: 'Product C', stock: 2, price: 100000, category: 'Electronics' },
-    ],
-    expenses: [
-      { date: '2024-01-01', amount: 500000, category: 'Rent', description: 'Monthly rent' },
-      { date: '2024-01-02', amount: 200000, category: 'Utilities', description: 'Electricity bill' },
-    ],
-    customers: [
-      { id: '1', name: 'John Doe', email: 'john@example.com', totalSpent: 500000, lastPurchase: '2024-01-01', frequency: 5 },
-      { id: '2', name: 'Jane Smith', email: 'jane@example.com', totalSpent: 750000, lastPurchase: '2024-01-02', frequency: 8 },
-    ]
+  const [dateRange, setDateRange] = useState<{ start: string; end: string }>({
+    start: '2025-11-01',
+    end: '2025-11-30'
+  })
+
+  // Fetch real business data from database
+  useEffect(() => {
+    const fetchBusinessData = async () => {
+      try {
+        const storeId = process.env.NEXT_PUBLIC_DEFAULT_STORE_ID || 'cmiby6xvg0000qx62zrfzoic1'
+        const response = await fetch(
+          `/api/analytics/business-data?storeId=${storeId}&startDate=${dateRange.start}&endDate=${dateRange.end}`
+        )
+        const result = await response.json()
+        if (result.success) {
+          setBusinessData(result.data)
+        }
+      } catch (error) {
+        console.error('Error fetching business data:', error)
+      }
+    }
+    fetchBusinessData()
+  }, [dateRange])
+
+  const handleDateChange = (type: 'start' | 'end', value: string) => {
+    setDateRange(prev => ({ ...prev, [type]: value }))
   }
 
   const generateInsights = async () => {
+    if (!businessData) {
+      console.error('No business data available')
+      return
+    }
+
     setIsLoading(true)
     try {
       const response = await fetch('/api/analytics/insights', {
@@ -81,7 +143,7 @@ const AIAnalytics = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          businessData: mockBusinessData,
+          businessData,
         }),
       })
 
@@ -96,7 +158,10 @@ const AIAnalytics = () => {
     }
   }
 
+
   const generateCashflowAnalysis = async () => {
+    if (!businessData) return
+
     setIsLoading(true)
     try {
       const response = await fetch('/api/analytics/cashflow', {
@@ -105,7 +170,7 @@ const AIAnalytics = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          businessData: mockBusinessData,
+          businessData,
         }),
       })
 
@@ -121,6 +186,8 @@ const AIAnalytics = () => {
   }
 
   const generateInventoryInsights = async () => {
+    if (!businessData) return
+
     setIsLoading(true)
     try {
       const response = await fetch('/api/analytics/inventory', {
@@ -129,7 +196,7 @@ const AIAnalytics = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          businessData: mockBusinessData,
+          businessData,
         }),
       })
 
@@ -144,46 +211,134 @@ const AIAnalytics = () => {
     }
   }
 
-  const getInsightIcon = (type: string) => {
-    switch (type) {
-      case 'trend':
-        return <TrendingUp className="w-5 h-5 text-blue-600" />
-      case 'warning':
-        return <AlertTriangle className="w-5 h-5 text-red-600" />
-      case 'recommendation':
-        return <Lightbulb className="w-5 h-5 text-yellow-600" />
-      case 'anomaly':
-        return <Brain className="w-5 h-5 text-purple-600" />
-      default:
-        return <Brain className="w-5 h-5 text-gray-600" />
+  const generateGrowthAnalysis = async () => {
+    if (!businessData) return
+
+    setIsLoading(true)
+    try {
+      const response = await fetch('/api/analytics/growth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          businessData,
+        }),
+      })
+
+      const result = await response.json()
+      if (result.success) {
+        setGrowthInsights(result.data)
+      }
+    } catch (error) {
+      console.error('Error generating growth analysis:', error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
-  const getImpactColor = (impact: string) => {
-    switch (impact) {
-      case 'high':
-        return 'border-red-200 bg-red-50'
-      case 'medium':
-        return 'border-yellow-200 bg-yellow-50'
-      case 'low':
-        return 'border-green-200 bg-green-50'
-      default:
-        return 'border-gray-200 bg-gray-50'
+  const generateMonthlyEvaluation = async () => {
+    if (!businessData) return
+
+    setIsLoading(true)
+    try {
+      const response = await fetch('/api/analytics/monthly', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          businessData,
+        }),
+      })
+
+      const result = await response.json()
+      if (result.success) {
+        setMonthlyInsights(result.data)
+      }
+    } catch (error) {
+      console.error('Error generating monthly evaluation:', error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
-  const getUrgencyColor = (urgency: string) => {
-    switch (urgency) {
-      case 'high':
-        return 'text-red-600 bg-red-100'
-      case 'medium':
-        return 'text-yellow-600 bg-yellow-100'
-      case 'low':
-        return 'text-green-600 bg-green-100'
-      default:
-        return 'text-gray-600 bg-gray-100'
+  const generateTrendPrediction = async () => {
+    if (!businessData) return
+
+    setIsLoading(true)
+    try {
+      const response = await fetch('/api/analytics/trends', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          businessData,
+        }),
+      })
+
+      const result = await response.json()
+      if (result.success) {
+        setTrendInsights(result.data)
+      }
+    } catch (error) {
+      console.error('Error generating trend prediction:', error)
+    } finally {
+      setIsLoading(false)
     }
   }
+
+  const generateRiskMitigation = async () => {
+    if (!businessData) return
+
+    setIsLoading(true)
+    try {
+      const response = await fetch('/api/analytics/risks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          businessData,
+        }),
+      })
+
+      const result = await response.json()
+      if (result.success) {
+        setRiskInsights(result.data)
+      }
+    } catch (error) {
+      console.error('Error generating risk mitigation:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const generateAllAnalytics = async () => {
+    if (!businessData) {
+      alert('Sedang memuat data bisnis, mohon tunggu sebentar...')
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      // Generate all analytics in parallel
+      await Promise.all([
+        generateInsights(),
+        generateCashflowAnalysis(),
+        generateInventoryInsights(),
+        generateGrowthAnalysis(),
+        generateMonthlyEvaluation(),
+        generateTrendPrediction(),
+        generateRiskMitigation()
+      ])
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+
 
   return (
     <div className="space-y-6">
@@ -196,88 +351,95 @@ const AIAnalytics = () => {
             <p className="text-gray-600 dark:text-gray-400">Wawasan dan rekomendasi bisnis berbasis AI</p>
           </div>
         </div>
-        <button
-          onClick={() => {
-            if (activeTab === 'business') generateInsights()
-            else if (activeTab === 'cashflow') generateCashflowAnalysis()
-            else if (activeTab === 'inventory') generateInventoryInsights()
-          }}
-          disabled={isLoading}
-          className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 transition-colors"
-        >
-          {isLoading ? 'Menganalisis...' : 'Hasilkan Analisis'}
-        </button>
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 bg-white dark:bg-gray-800 p-2 rounded-lg border border-gray-200 dark:border-gray-700">
+            <Calendar className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <input
+              type="date"
+              value={dateRange.start}
+              onChange={(e) => handleDateChange('start', e.target.value)}
+              className="text-sm bg-transparent border-none focus:ring-0 text-gray-600 dark:text-gray-400"
+            />
+            <span className="text-gray-400">-</span>
+            <input
+              type="date"
+              value={dateRange.end}
+              onChange={(e) => handleDateChange('end', e.target.value)}
+              className="text-sm bg-transparent border-none focus:ring-0 text-gray-600 dark:text-gray-400"
+            />
+          </div>
+          <button
+            onClick={generateAllAnalytics}
+            disabled={isLoading || !businessData}
+            className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 transition-colors"
+          >
+            {isLoading ? 'Menganalisis...' : !businessData ? 'Memuat Data...' : 'Hasilkan Analisis Lengkap'}
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}
       <div className="flex flex-wrap space-x-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
         <button
           onClick={() => setActiveTab('business')}
-          className={`flex-1 px-4 py-2 rounded-md transition-colors ${
-            activeTab === 'business'
-              ? 'bg-white dark:bg-gray-700 text-primary-600 shadow-sm'
-              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-          }`}
+          className={`flex-1 px-4 py-2 rounded-md transition-colors ${activeTab === 'business'
+            ? 'bg-white dark:bg-gray-700 text-primary-600 shadow-sm'
+            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+            }`}
         >
           Wawasan Bisnis
         </button>
         <button
           onClick={() => setActiveTab('cashflow')}
-          className={`flex-1 px-4 py-2 rounded-md transition-colors ${
-            activeTab === 'cashflow'
-              ? 'bg-white dark:bg-gray-700 text-primary-600 shadow-sm'
-              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-          }`}
+          className={`flex-1 px-4 py-2 rounded-md transition-colors ${activeTab === 'cashflow'
+            ? 'bg-white dark:bg-gray-700 text-primary-600 shadow-sm'
+            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+            }`}
         >
           Analisis Arus Kas
         </button>
         <button
           onClick={() => setActiveTab('inventory')}
-          className={`flex-1 px-4 py-2 rounded-md transition-colors ${
-            activeTab === 'inventory'
-              ? 'bg-white dark:bg-gray-700 text-primary-600 shadow-sm'
-              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-          }`}
+          className={`flex-1 px-4 py-2 rounded-md transition-colors ${activeTab === 'inventory'
+            ? 'bg-white dark:bg-gray-700 text-primary-600 shadow-sm'
+            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+            }`}
         >
           Wawasan Inventori
         </button>
         <button
           onClick={() => setActiveTab('growth')}
-          className={`flex-1 px-4 py-2 rounded-md transition-colors ${
-            activeTab === 'growth'
-              ? 'bg-white dark:bg-gray-700 text-primary-600 shadow-sm'
-              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-          }`}
+          className={`flex-1 px-4 py-2 rounded-md transition-colors ${activeTab === 'growth'
+            ? 'bg-white dark:bg-gray-700 text-primary-600 shadow-sm'
+            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+            }`}
         >
           Analisis Pertumbuhan
         </button>
         <button
           onClick={() => setActiveTab('monthly')}
-          className={`flex-1 px-4 py-2 rounded-md transition-colors ${
-            activeTab === 'monthly'
-              ? 'bg-white dark:bg-gray-700 text-primary-600 shadow-sm'
-              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-          }`}
+          className={`flex-1 px-4 py-2 rounded-md transition-colors ${activeTab === 'monthly'
+            ? 'bg-white dark:bg-gray-700 text-primary-600 shadow-sm'
+            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+            }`}
         >
           Evaluasi Bulanan
         </button>
         <button
           onClick={() => setActiveTab('trends')}
-          className={`flex-1 px-4 py-2 rounded-md transition-colors ${
-            activeTab === 'trends'
-              ? 'bg-white dark:bg-gray-700 text-primary-600 shadow-sm'
-              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-          }`}
+          className={`flex-1 px-4 py-2 rounded-md transition-colors ${activeTab === 'trends'
+            ? 'bg-white dark:bg-gray-700 text-primary-600 shadow-sm'
+            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+            }`}
         >
           Prediksi Tren
         </button>
         <button
           onClick={() => setActiveTab('risks')}
-          className={`flex-1 px-4 py-2 rounded-md transition-colors ${
-            activeTab === 'risks'
-              ? 'bg-white dark:bg-gray-700 text-primary-600 shadow-sm'
-              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-          }`}
+          className={`flex-1 px-4 py-2 rounded-md transition-colors ${activeTab === 'risks'
+            ? 'bg-white dark:bg-gray-700 text-primary-600 shadow-sm'
+            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+            }`}
         >
           Mitigasi Risiko
         </button>
@@ -289,33 +451,12 @@ const AIAnalytics = () => {
           {insights.length === 0 ? (
             <div className="text-center py-12">
               <Brain className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-              <p className="text-gray-500 dark:text-gray-400">Klik "Hasilkan Analisis" untuk mendapatkan wawasan bisnis berbasis AI</p>
+              <p className="text-gray-500 dark:text-gray-400">Klik "Hasilkan Analisis Lengkap" untuk mendapatkan wawasan bisnis berbasis AI</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {insights.map((insight, index) => (
-                <div
-                  key={index}
-                  className={`p-4 border rounded-lg ${getImpactColor(insight.impact)}`}
-                >
-                  <div className="flex items-start space-x-3">
-                    {getInsightIcon(insight.type)}
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900 mb-1">{insight.title}</h3>
-                      <p className="text-sm text-gray-600 mb-2">{insight.description}</p>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-gray-500">
-                          Impact: {insight.impact} • Confidence: {Math.round(insight.confidence * 100)}%
-                        </span>
-                        {insight.actionable && (
-                          <span className="text-xs bg-primary-100 text-primary-700 px-2 py-1 rounded">
-                            Actionable
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <InsightCard key={index} insight={insight} />
               ))}
             </div>
           )}
@@ -351,36 +492,32 @@ const AIAnalytics = () => {
                     Rp. {cashflowAnalysis.cashflow.outflow.toLocaleString()}
                   </p>
                 </div>
-                <div className={`p-4 border rounded-lg ${
-                  cashflowAnalysis.cashflow.trend === 'positive' 
-                    ? 'bg-green-50 border-green-200' 
-                    : cashflowAnalysis.cashflow.trend === 'negative'
+                <div className={`p-4 border rounded-lg ${cashflowAnalysis.cashflow.trend === 'positive'
+                  ? 'bg-green-50 border-green-200'
+                  : cashflowAnalysis.cashflow.trend === 'negative'
                     ? 'bg-red-50 border-red-200'
                     : 'bg-gray-50 border-gray-200'
-                }`}>
+                  }`}>
                   <div className="flex items-center space-x-2 mb-2">
-                    <DollarSign className={`w-5 h-5 ${
-                      cashflowAnalysis.cashflow.trend === 'positive' 
-                        ? 'text-green-600' 
-                        : cashflowAnalysis.cashflow.trend === 'negative'
+                    <DollarSign className={`w-5 h-5 ${cashflowAnalysis.cashflow.trend === 'positive'
+                      ? 'text-green-600'
+                      : cashflowAnalysis.cashflow.trend === 'negative'
                         ? 'text-red-600'
                         : 'text-gray-600'
-                    }`} />
-                    <span className={`text-sm font-medium ${
-                      cashflowAnalysis.cashflow.trend === 'positive' 
-                        ? 'text-green-800' 
-                        : cashflowAnalysis.cashflow.trend === 'negative'
+                      }`} />
+                    <span className={`text-sm font-medium ${cashflowAnalysis.cashflow.trend === 'positive'
+                      ? 'text-green-800'
+                      : cashflowAnalysis.cashflow.trend === 'negative'
                         ? 'text-red-800'
                         : 'text-gray-800'
-                    }`}>Net Cashflow</span>
+                      }`}>Net Cashflow</span>
                   </div>
-                  <p className={`text-2xl font-bold ${
-                    cashflowAnalysis.cashflow.trend === 'positive' 
-                      ? 'text-green-900' 
-                      : cashflowAnalysis.cashflow.trend === 'negative'
+                  <p className={`text-2xl font-bold ${cashflowAnalysis.cashflow.trend === 'positive'
+                    ? 'text-green-900'
+                    : cashflowAnalysis.cashflow.trend === 'negative'
                       ? 'text-red-900'
                       : 'text-gray-900'
-                  }`}>
+                    }`}>
                     Rp. {cashflowAnalysis.cashflow.net.toLocaleString()}
                   </p>
                 </div>
@@ -465,6 +602,129 @@ const AIAnalytics = () => {
           )}
         </div>
       )}
+      {activeTab === 'growth' && (
+        <div className="space-y-4">
+          {growthInsights.length === 0 ? (
+            <div className="text-center py-12">
+              <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-500">Klik "Hasilkan Analisis Lengkap" untuk mendapatkan analisis pertumbuhan</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {growthInsights.map((insight, index) => (
+                <InsightCard key={index} insight={insight} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'monthly' && (
+        <div className="space-y-4">
+          {monthlyInsights.length === 0 ? (
+            <div className="text-center py-12">
+              <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-500">Klik "Hasilkan Analisis Lengkap" untuk mendapatkan evaluasi bulanan</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {monthlyInsights.map((insight, index) => (
+                <InsightCard key={index} insight={insight} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'trends' && (
+        <div className="space-y-4">
+          {trendInsights.length === 0 ? (
+            <div className="text-center py-12">
+              <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-500">Klik "Hasilkan Analisis Lengkap" untuk mendapatkan prediksi tren</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {trendInsights.map((insight, index) => (
+                <InsightCard key={index} insight={insight} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'risks' && (
+        <div className="space-y-4">
+          {riskInsights.length === 0 ? (
+            <div className="text-center py-12">
+              <AlertTriangle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-500">Klik "Hasilkan Analisis Lengkap" untuk mendapatkan mitigasi risiko</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {riskInsights.map((insight, index) => (
+                <InsightCard key={index} insight={insight} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// Helper component for rendering insights
+const InsightCard = ({ insight }: { insight: BusinessInsight }) => {
+
+
+  return (
+    <div className={`p-4 border rounded-lg ${getImpactColor(insight.impact)}`}>
+      <div className="flex items-start space-x-3">
+        {getInsightIcon(insight.type)}
+        <div className="flex-1">
+          <h3 className="font-semibold text-gray-900 mb-2">{insight.title}</h3>
+          <div className="text-sm text-gray-700 mb-3 space-y-2">
+            {insight.description.split('\n').map((line, i) => {
+              // Handle bullet points
+              const isBullet = line.trim().startsWith('-') || line.trim().startsWith('*') || line.trim().startsWith('•')
+              // Handle numbered lists (e.g., "1. ", "2. ")
+              const isNumbered = /^\d+\.\s/.test(line.trim())
+
+              let cleanLine = line
+              if (isBullet) cleanLine = line.replace(/^[-*•]\s*/, '')
+              // Keep the number for numbered lists but maybe style it? 
+              // Actually, let's keep the number but indent it.
+
+              // Handle bold text parsing
+              const parts = cleanLine.split(/(\*\*.*?\*\*)/g)
+
+              return (
+                <p key={i} className={`leading-relaxed ${isBullet || isNumbered ? 'pl-4 relative mb-1' : 'mb-2'}`}>
+                  {isBullet && (
+                    <span className="absolute left-0 top-2 w-1.5 h-1.5 bg-gray-400 rounded-full" />
+                  )}
+                  {parts.map((part, j) => {
+                    if (part.startsWith('**') && part.endsWith('**')) {
+                      return <strong key={j} className="font-semibold text-gray-900">{part.slice(2, -2)}</strong>
+                    }
+                    return <span key={j}>{part}</span>
+                  })}
+                </p>
+              )
+            })}
+          </div>
+          <div className="flex items-center justify-between pt-2 border-t border-gray-200/50">
+            <span className="text-xs text-gray-500 font-medium uppercase tracking-wide">
+              {insight.type} • Impact: {insight.impact}
+            </span>
+            {insight.actionable && (
+              <span className="text-xs bg-white/50 text-gray-700 px-2 py-1 rounded border border-gray-200">
+                Actionable
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 
 export async function GET(request: Request) {
@@ -64,17 +64,17 @@ export async function PATCH(request: Request) {
 
     if (markAllRead) {
       await prisma.notification.updateMany({
-        where: { 
+        where: {
           storeId,
-          isRead: false 
+          isRead: false
         },
         data: { isRead: true }
       });
     } else if (notificationId) {
       await prisma.notification.update({
-        where: { 
+        where: {
           id: notificationId,
-          storeId 
+          storeId
         },
         data: { isRead: true }
       });
@@ -85,7 +85,7 @@ export async function PATCH(request: Request) {
       );
     }
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       status: 'success',
       message: markAllRead ? 'All notifications marked as read' : 'Notification marked as read'
     });
