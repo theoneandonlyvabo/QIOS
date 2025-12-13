@@ -1,0 +1,68 @@
+﻿
+> qios-retail-system@1.0.0 build
+> next build
+
+  Γû▓ Next.js 14.2.33
+  - Environments: .env.local, .env
+
+   Creating an optimized production build ...
+node.exe : Failed to compile.
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program Files\nodejs/node_mo 
+...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
+    + CategoryInfo          : No 
+   tSpecified: (Failed to compi  
+  le.:String) [], RemoteExcept   
+ ion
+    + FullyQualifiedErrorId : Na 
+   tiveCommandError
+ 
+
+./components/dashboard/Interactiv
+eChart.tsx
+Error: 
+  [31mx[0m You're importing a 
+component that needs useState. 
+It only works in a Client 
+Component but none of its 
+parents are marked with "use 
+client", so they're Server 
+Components by default.
+  [31m|[0m Learn more: https://
+nextjs.org/docs/getting-started/r
+eact-essentials
+  [31m|[0m 
+  [31m|[0m 
+   ,-[[36;1;4mD:\Airel 
+Adrivano\Kuliah\Visual Studio Cod
+e\QIOS\components\dashboard\Inter
+activeChart.tsx[0m:1:1]
+ [2m1[0m | import { useState } 
+from 'react';
+   : [31;1m         ^^^^^^^^[0m
+ [2m2[0m | import { AreaChart, 
+Area, XAxis, YAxis, 
+CartesianGrid, Tooltip, 
+ResponsiveContainer, Line } from 
+'recharts';
+ [2m3[0m | import { motion } 
+from 'framer-motion';
+ [2m3[0m | 
+   `----
+
+Import trace for requested 
+module:
+./components/dashboard/Interactiv
+eChart.tsx
+./components/dashboard/Dashboard.
+tsx
+./app/dashboard/page.tsx
+
+
+> Build failed because of 
+webpack errors

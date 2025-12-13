@@ -2,13 +2,60 @@
   "name": "qios-retail-system",
   "version": "1.0.0",
   "description": "Quality Integrated Omni System - Comprehensive retail management with payment gateway integration",
-  "main": "index.js",
+  "main": "electron/main.js",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "electron": "electron .",
+    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:3000 && electron .\"",
+    "electron:build": "next build && electron-builder",
+    "electron:build:win": "next build && electron-builder --win",
+    "electron:build:mac": "next build && electron-builder --mac",
+    "electron:build:linux": "next build && electron-builder --linux"
+  },
+  "build": {
+    "appId": "com.qios.retail",
+    "productName": "QIOS Retail System",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron/**/*",
+      ".next/**/*",
+      "public/**/*",
+      "package.json"
+    ],
+    "npmRebuild": false,
+    "asarUnpack": [
+      "node_modules/bcrypt/**/*",
+      "node_modules/@prisma/**/*"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "public/icon.ico"
+    },
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "icon": "public/icon.icns",
+      "category": "public.app-category.business"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "icon": "public/icon.png",
+      "category": "Office"
+    }
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
@@ -28,6 +75,7 @@
     "cors": "^2.8.5",
     "date-fns": "^2.30.0",
     "dotenv": "^17.2.3",
+    "electron-next": "^3.1.5",
     "express": "^5.1.0",
     "express-rate-limit": "^8.2.1",
     "framer-motion": "^10.16.0",
@@ -55,11 +103,15 @@
     "@types/bcryptjs": "^2.4.0",
     "@types/jsonwebtoken": "^9.0.0",
     "autoprefixer": "^10.4.14",
+    "concurrently": "^8.2.2",
+    "electron": "^39.2.5",
+    "electron-builder": "^25.1.8",
     "eslint": "^8.53.0",
     "eslint-config-next": "^14.0.0",
     "postcss": "^8.4.23",
     "tailwindcss": "^3.3.0",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "wait-on": "^8.0.5"
   },
   "keywords": [
     "retail",
@@ -72,10 +124,6 @@
   ],
   "author": "QIOS Team",
   "license": "MIT",
-  "directories": {
-    "doc": "docs",
-    "lib": "lib"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/theoneandonlyvabo/QIOS.git"

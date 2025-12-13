@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Line } from 'recharts';
 import { motion } from 'framer-motion';
@@ -29,7 +31,7 @@ export default function InteractiveChart({ data, title = 'Revenue Trends' }: Int
     return (
       <div className="bg-white border border-neutral-200 rounded-lg shadow-lg p-4 max-w-xs">
         <p className="text-sm font-semibold text-neutral-900 mb-2">{label}</p>
-        
+
         <div className="space-y-2">
           <div>
             <p className="text-xs text-neutral-600">Current Period</p>
@@ -37,22 +39,21 @@ export default function InteractiveChart({ data, title = 'Revenue Trends' }: Int
               Rp {current.toLocaleString('id-ID')}
             </p>
           </div>
-          
+
           {comparisonEnabled && previous && (
             <div>
               <p className="text-xs text-neutral-600">Previous Period</p>
               <p className="text-sm text-neutral-700">
                 Rp {previous.toLocaleString('id-ID')}
               </p>
-              <p className={`text-sm font-semibold ${
-                Number(change) > 0 ? 'text-success-600' : 'text-danger-600'
-              }`}>
+              <p className={`text-sm font-semibold ${Number(change) > 0 ? 'text-success-600' : 'text-danger-600'
+                }`}>
                 {Number(change) > 0 ? '+' : ''}{change}% change
               </p>
             </div>
           )}
         </div>
-        
+
         <div className="mt-3 pt-3 border-t border-neutral-100">
           <p className="text-xs text-neutral-600">
             {getInsightForDataPoint(current, previous)}
@@ -72,7 +73,7 @@ export default function InteractiveChart({ data, title = 'Revenue Trends' }: Int
       {/* Controls */}
       <div className="flex flex-wrap items-center justify-between mb-6 gap-4">
         <h3 className="text-lg font-semibold text-neutral-900">{title}</h3>
-        
+
         <div className="flex gap-2">
           {/* Timeframe selector */}
           <div className="inline-flex rounded-lg border border-neutral-200 p-1">
@@ -84,11 +85,10 @@ export default function InteractiveChart({ data, title = 'Revenue Trends' }: Int
               <button
                 key={tf.value}
                 onClick={() => setTimeframe(tf.value as any)}
-                className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                  timeframe === tf.value
+                className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${timeframe === tf.value
                     ? 'bg-primary-100 text-primary-700'
                     : 'text-neutral-600 hover:text-neutral-900'
-                }`}
+                  }`}
               >
                 {tf.label}
               </button>
@@ -109,11 +109,10 @@ export default function InteractiveChart({ data, title = 'Revenue Trends' }: Int
           {/* Comparison toggle */}
           <button
             onClick={() => setComparisonEnabled(!comparisonEnabled)}
-            className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-              comparisonEnabled
+            className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${comparisonEnabled
                 ? 'bg-primary-100 text-primary-700'
                 : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
-            }`}
+              }`}
           >
             {comparisonEnabled ? '✓ Compare' : 'Compare'}
           </button>
@@ -126,24 +125,24 @@ export default function InteractiveChart({ data, title = 'Revenue Trends' }: Int
           <AreaChart data={data}>
             <defs>
               <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#db3514" stopOpacity={0.3}/>
-                <stop offset="95%" stopColor="#db3514" stopOpacity={0}/>
+                <stop offset="5%" stopColor="#db3514" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#db3514" stopOpacity={0} />
               </linearGradient>
             </defs>
-            
+
             <CartesianGrid strokeDasharray="3 3" stroke="#E5E5E5" />
-            <XAxis 
-              dataKey="date" 
+            <XAxis
+              dataKey="date"
               stroke="#737373"
               style={{ fontSize: '12px' }}
             />
-            <YAxis 
+            <YAxis
               stroke="#737373"
               style={{ fontSize: '12px' }}
               tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`}
             />
             <Tooltip content={<CustomTooltip />} />
-            
+
             <Area
               type="monotone"
               dataKey="value"
@@ -151,7 +150,7 @@ export default function InteractiveChart({ data, title = 'Revenue Trends' }: Int
               strokeWidth={2}
               fill="url(#colorRevenue)"
             />
-            
+
             {comparisonEnabled && (
               <Line
                 type="monotone"
@@ -190,9 +189,8 @@ function ChartStat({ label, value, highlight = false }: any) {
   return (
     <div>
       <p className="text-xs text-neutral-600 mb-1">{label}</p>
-      <p className={`text-lg font-bold ${
-        highlight ? 'text-success-600' : 'text-neutral-900'
-      }`}>
+      <p className={`text-lg font-bold ${highlight ? 'text-success-600' : 'text-neutral-900'
+        }`}>
         Rp {value.toLocaleString('id-ID')}
       </p>
     </div>
@@ -214,7 +212,7 @@ function findPeak(data: ChartData[]) {
 
 function getInsightForDataPoint(current: number, previous: number | null) {
   if (!previous) return 'Hover over different points to see the trend';
-  
+
   const change = ((current - previous) / previous) * 100;
   if (change > 20) return 'Significant increase - investigate success factors';
   if (change > 10) return 'Healthy growth trend';

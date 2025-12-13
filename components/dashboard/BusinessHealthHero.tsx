@@ -1,3 +1,5 @@
+'use client';
+
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { getStatusColor, getTrendColor } from '@/lib/design-tokens';
 
@@ -18,16 +20,16 @@ interface Action {
 
 export default function BusinessHealthHero({ data }: { data: HealthStatus }) {
   const healthColor = getStatusColor(
-    data.score >= 80 ? 'excellent' : 
-    data.score >= 60 ? 'good' : 
-    data.score >= 40 ? 'warning' : 'danger'
+    data.score >= 80 ? 'excellent' :
+      data.score >= 60 ? 'good' :
+        data.score >= 40 ? 'warning' : 'danger'
   );
-  
+
   return (
     <div className="relative overflow-hidden bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl p-8 text-white shadow-xl">
       {/* Background decoration */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-      
+
       <div className="relative z-10 grid md:grid-cols-3 gap-8">
         {/* Main Health Score */}
         <div className="md:col-span-1 flex flex-col items-center justify-center">
@@ -36,7 +38,7 @@ export default function BusinessHealthHero({ data }: { data: HealthStatus }) {
               <span className="text-5xl font-bold">{data.score}</span>
             </div>
           </div>
-          
+
           <div className="text-center">
             <div className="flex items-center justify-center gap-2 mb-2">
               {data.trend === 'up' && <TrendingUp className="w-5 h-5 text-success-300" />}
@@ -51,7 +53,7 @@ export default function BusinessHealthHero({ data }: { data: HealthStatus }) {
         {/* Quick Stats */}
         <div className="md:col-span-1 space-y-4">
           <h3 className="text-sm font-medium text-white/60 uppercase tracking-wide">Today's Performance</h3>
-          
+
           <div className="space-y-3">
             <QuickStat
               label="Revenue"
@@ -77,7 +79,7 @@ export default function BusinessHealthHero({ data }: { data: HealthStatus }) {
         {/* Urgent Actions */}
         <div className="md:col-span-1">
           <h3 className="text-sm font-medium text-white/60 uppercase tracking-wide mb-4">Action Required</h3>
-          
+
           <div className="space-y-3">
             {data.urgentActions.length === 0 ? (
               <div className="bg-white/10 backdrop-blur rounded-lg p-4 text-center">

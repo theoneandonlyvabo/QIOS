@@ -1,3 +1,5 @@
+'use client';
+
 import BusinessHealthHero from './BusinessHealthHero';
 import MetricCard from './MetricCard';
 import InteractiveChart from './InteractiveChart';
@@ -22,14 +24,14 @@ export default function Dashboard() {
               title: 'Low Stock Alert',
               description: '5 products are below minimum stock level',
               priority: 'high',
-              action: () => {}
+              action: () => { }
             },
             {
               id: '2',
               title: 'Review Pending Orders',
               description: '3 orders need confirmation',
               priority: 'medium',
-              action: () => {}
+              action: () => { }
             }
           ]
         }}
@@ -50,7 +52,7 @@ export default function Dashboard() {
           insight="You're on track to exceed target by 8% if this trend continues."
           action={{
             label: "View detailed breakdown",
-            onClick: () => {}
+            onClick: () => { }
           }}
           status="good"
         />
@@ -66,7 +68,7 @@ export default function Dashboard() {
           insight="Positive reviews mention quick service and product quality"
           action={{
             label: "View customer feedback",
-            onClick: () => {}
+            onClick: () => { }
           }}
           status="excellent"
         />
@@ -84,7 +86,7 @@ export default function Dashboard() {
           insight="5 products need reordering soon"
           action={{
             label: "Manage inventory",
-            onClick: () => {}
+            onClick: () => { }
           }}
           status="warning"
         />

@@ -1,4 +1,36 @@
 const validator = require('validator');
+const { PASSWORD_POLICY } = require('../config/security');
+const { validateUsernameFormat } = require('./inputValidation');
+
+/**
+ * Validates password strength according to security policy
+ */
+const validatePasswordStrength = (password) => {
+    if (password.length < PASSWORD_POLICY.minLength) {
+        return `Password must be at least ${PASSWORD_POLICY.minLength} characters long`;
+    }
+
+    if (PASSWORD_POLICY.requireUppercase && !/[A-Z]/.test(password)) {
+        return 'Password must contain at least one uppercase letter';
+    }
+
+    if (PASSWORD_POLICY.requireLowercase && !/[a-z]/.test(password)) {
+        return 'Password must contain at least one lowercase letter';
+    }
+
+    if (PASSWORD_POLICY.requireNumbers && !/[0-9]/.test(password)) {
+        return 'Password must contain at least one number';
+    }
+
+    if (PASSWORD_POLICY.requireSpecialChars) {
+        const specialCharsRegex = new RegExp(`[${PASSWORD_POLICY.specialChars.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}]`);
+        if (!specialCharsRegex.test(password)) {
+            return 'Password must contain at least one special character (!@#$%^&*(),.?":{}|<>_-+=[];/\\`~)';
+        }
+    }
+
+    return null; // Password is valid
+};
 
 const validateUser = (req, res, next) => {
     const { username, email, password } = req.body;
@@ -11,12 +43,17 @@ const validateUser = (req, res, next) => {
         return res.status(400).json({ error: 'Invalid email format' });
     }
 
-    if (password.length < 8) {
-        return res.status(400).json({ error: 'Password must be at least 8 characters long' });
+    // Validate username format (alphanumeric and underscore only)
+    if (!validateUsernameFormat(username)) {
+        return res.status(400).json({
+            error: 'Username must be 3-50 characters and contain only letters, numbers, and underscores'
+        });
     }
 
-    if (username.length < 3 || username.length > 50) {
-        return res.status(400).json({ error: 'Username must be between 3 and 50 characters' });
+    // Validate password strength
+    const passwordError = validatePasswordStrength(password);
+    if (passwordError) {
+        return res.status(400).json({ error: passwordError });
     }
 
     next();

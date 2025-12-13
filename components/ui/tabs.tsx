@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from "react"
 
 interface TabsProps {
@@ -49,11 +51,10 @@ export function TabsTrigger({ value, children, className }: TabsTriggerProps) {
 
   return (
     <button
-      className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:ring-offset-gray-950 dark:focus-visible:ring-gray-300 ${
-        isActive
+      className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:ring-offset-gray-950 dark:focus-visible:ring-gray-300 ${isActive
           ? "bg-white text-gray-950 shadow dark:bg-gray-950 dark:text-gray-50"
           : "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
-      } ${className}`}
+        } ${className}`}
       onClick={() => setActiveTab(value)}
     >
       {children}
@@ -80,5 +81,5 @@ const TabsContext = React.createContext<{
   setActiveTab: (value: string) => void
 }>({
   activeTab: "",
-  setActiveTab: () => {},
+  setActiveTab: () => { },
 })

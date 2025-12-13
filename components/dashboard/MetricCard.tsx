@@ -1,3 +1,5 @@
+'use client';
+
 import { motion } from 'framer-motion';
 import { getStatusColor } from '@/lib/design-tokens';
 
@@ -48,11 +50,10 @@ export default function MetricCard({
             {value}
           </p>
         </div>
-        
+
         {/* Trend indicator */}
-        <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${
-          trend.direction === 'up' ? 'bg-success-100 text-success-700' : 'bg-danger-100 text-danger-700'
-        }`}>
+        <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${trend.direction === 'up' ? 'bg-success-100 text-success-700' : 'bg-danger-100 text-danger-700'
+          }`}>
           {trend.direction === 'up' ? '↑' : '↓'} {Math.abs(trend.value)}%
           <span className="text-neutral-500 ml-1">{trend.period}</span>
         </div>
@@ -66,15 +67,14 @@ export default function MetricCard({
             <span className="font-semibold">{progress}%</span>
           </div>
           <div className="h-2 bg-neutral-200 rounded-full overflow-hidden">
-            <motion.div 
+            <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${Math.min(progress, 100)}%` }}
               transition={{ duration: 1, ease: "easeOut" }}
-              className={`h-full rounded-full transition-colors duration-500 ${
-                progress >= 100 ? 'bg-success-500' :
-                progress >= 75 ? 'bg-primary-500' :
-                progress >= 50 ? 'bg-warning-500' : 'bg-danger-500'
-              }`}
+              className={`h-full rounded-full transition-colors duration-500 ${progress >= 100 ? 'bg-success-500' :
+                  progress >= 75 ? 'bg-primary-500' :
+                    progress >= 50 ? 'bg-warning-500' : 'bg-danger-500'
+                }`}
             />
           </div>
           <p className="text-xs text-neutral-500 mt-1">

@@ -4,32 +4,51 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
+// Import security configuration (this will validate JWT_SECRET on startup)
+const { getCORSOptions, RATE_LIMITERS } = require('./config/security');
+
 const app = express();
 const port = process.env.PORT || 3000;
 
 // Middleware
 app.use(helmet()); // Security headers
-app.use(cors());   // Enable CORS
+
+// CORS with proper configuration (FIX: Vulnerability #1)
+app.use(cors(getCORSOptions()));
+
 app.use(express.json()); // Parse JSON bodies
 
-// Rate limiting
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100 // limit each IP to 100 requests per windowMs
-});
-app.use(limiter);
+// Rate limiters (FIX: Vulnerability #7)
+const authLimiter = rateLimit(RATE_LIMITERS.auth);
+const apiLimiter = rateLimit(RATE_LIMITERS.api);
 
 // Routes
 const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/products');
 
-app.use('/api/auth', authRoutes);
-app.use('/api/products', productRoutes);
+// Apply strict rate limiting to auth endpoints
+app.use('/api/auth', authLimiter, authRoutes);
 
-// Error handling middleware
+// Apply general rate limiting to other API endpoints
+app.use('/api/products', apiLimiter, productRoutes);
+
+// Error handling middleware (FIX: Vulnerability #6)
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ error: 'Something broke!' });
+    // Log error for debugging (but not to console in production)
+    if (process.env.NODE_ENV !== 'production') {
+        console.error('Error:', err.message);
+        console.error('Stack:', err.stack);
+    } else {
+        // In production, use proper logging service
+        // TODO: Implement proper logging (Winston, etc.)
+        console.error('Error occurred:', err.message);
+    }
+
+    // Don't expose internal error details to users
+    res.status(err.status || 500).json({
+        error: 'An error occurred processing your request',
+        ...(process.env.NODE_ENV !== 'production' && { details: err.message })
+    });
 });
 
 // 404 handler

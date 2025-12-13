@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const { JWT_SECRET } = require('../config/security');
 
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
@@ -9,7 +10,8 @@ const authenticateToken = (req, res, next) => {
     }
 
     try {
-        const user = jwt.verify(token, process.env.JWT_SECRET);
+        // FIX: Vulnerability #3 - Use validated JWT_SECRET
+        const user = jwt.verify(token, JWT_SECRET);
         req.user = user;
         next();
     } catch (error) {
